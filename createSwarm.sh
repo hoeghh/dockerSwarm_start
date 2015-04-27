@@ -1,25 +1,33 @@
+clear;
+
+if [ -f /etc/redhat-release ]; then
+        sudo setenforce 0
+fi
+
 docker-machine create -d virtualbox local
 eval "$(docker-machine env local)"
 
-SwamID=$(docker run swarm create)
+SwarmID=`docker run swarm create`
+echo $SwarmID
 
 docker-machine create \
     -d virtualbox \
     --swarm \
     --swarm-master \
-    --swarm-discovery token://$SwamID \
+    --swarm-discovery token://$SwarmID \
     swarm-master
 
 docker-machine create \
     -d virtualbox \
     --swarm \
-    --swarm-discovery token://$SwamID \
+    --swarm-discovery token://$SwarmID \
     swarm-node-00
+
+echo "SwarmID=$SwarmID" > SwarmIDs
 
 eval $(docker-machine env --swarm swarm-master)
 
-echo "SwarmID=$SwarmID \
-      SwarmMasterID=$SwarmMasterID \
-      SwarmSlaveID=$SwarmSlaveID" > SwarmIDs
-
 docker info
+
+sleep 5
+docker-compose up
