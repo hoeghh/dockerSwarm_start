@@ -4,11 +4,10 @@ if [ -f /etc/redhat-release ]; then
         sudo setenforce 0
 fi
 
-docker-machine create -d virtualbox local
-eval "$(docker-machine env local)"
-
 SwarmID=`docker run swarm create`
 echo $SwarmID
+
+eval $(docker-machine env --swarm swarm-master)
 
 docker-machine create \
     -d virtualbox \
@@ -30,4 +29,8 @@ eval $(docker-machine env --swarm swarm-master)
 docker info
 
 sleep 5
-docker-compose up
+
+docker run -d -P -m 1G --name db5 -e MYSQL_ROOT_PASSWORD=1234 mysql
+docker run -d -P -m 1G --name frontend5 nginx
+
+docker run swarm list token://$SwarmID
