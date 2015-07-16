@@ -30,7 +30,5 @@ docker info
 
 sleep 5
 
-docker run -d -P -m 1G --name db5 -e MYSQL_ROOT_PASSWORD=1234 mysql
-docker run -d -P -m 1G --name frontend5 nginx
-
+docker-compose up
 docker run swarm list token://$SwarmID
