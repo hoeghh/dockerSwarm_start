@@ -31,9 +31,9 @@ echo "SwarmID=$SwarmID" > SwarmIDs
 
 eval $(docker-machine env --swarm swarm-master)
 
-docker info
+sleep 15
 
-sleep 5
+docker info
 
 docker-compose up
 docker run swarm list token://$SwarmID
