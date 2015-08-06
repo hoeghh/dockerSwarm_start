@@ -1,28 +1,28 @@
-
-docker-machine create --driver virtualbox luci-swarm-master
-docker-machine ssh luci-swarm-master<<-\SSH
-  sudo sh -c 'echo -e " \
-    EXTRA_ARGS=\"--label provider=virtualbox\" \n \
-    DOCKER_HOST=\"-H tcp://0.0.0.0:2376\" \n \
-    DOCKER_STORAGE=aufs \n \
-    DOCKER_TLS=no" > /var/lib/boot2docker/profile'
-SSH
-docker-machine restart luci-swarm-master
-
-docker-machine create --driver virtualbox luci-swarm-node-01
-docker-machine ssh luci-swarm-node-01<<-\SSH
-  sudo sh -c 'echo -e " \
-    EXTRA_ARGS=\"--label provider=virtualbox\" \n \
-    DOCKER_HOST=\"-H tcp://0.0.0.0:2376\" \n \
-    DOCKER_STORAGE=aufs \n \
-    DOCKER_TLS=no" > /var/lib/boot2docker/profile'
-SSH
-docker-machine restart luci-swarm-node-01
-
 SwarmID=$(docker run swarm create)
-echo "SwarmID = $SwarmID"
 
-if [ -z $SwarmID ]; then
+if [ ! -z "$SwarmID" ]; then
+  echo "SwarmID = $SwarmID"
+
+  docker-machine create --driver virtualbox luci-swarm-master
+  docker-machine ssh luci-swarm-master<<-\SSH
+  sudo sh -c 'echo -e " \
+    EXTRA_ARGS=\"--label provider=virtualbox\" \n \
+    DOCKER_HOST=\"-H tcp://0.0.0.0:2376\" \n \
+    DOCKER_STORAGE=aufs \n \
+    DOCKER_TLS=no" > /var/lib/boot2docker/profile'
+SSH
+  docker-machine restart luci-swarm-master
+
+  docker-machine create --driver virtualbox luci-swarm-node-01
+  docker-machine ssh luci-swarm-node-01<<-\SSH
+  sudo sh -c 'echo -e " \
+    EXTRA_ARGS=\"--label provider=virtualbox\" \n \
+    DOCKER_HOST=\"-H tcp://0.0.0.0:2376\" \n \
+    DOCKER_STORAGE=aufs \n \
+    DOCKER_TLS=no" > /var/lib/boot2docker/profile'
+SSH
+  docker-machine restart luci-swarm-node-01
+
   # Get ips of the master node and start swarm
   masterIP=$(docker-machine ls|grep "swarm-master" |cut -d "/" -f3| cut -d":" -f1)
   echo "masterIP = $masterIP"
@@ -42,7 +42,6 @@ if [ -z $SwarmID ]; then
   #docker -H tcp://$masterIP:3375 run -d -p 80:80 nginx
   #docker -H tcp://$masterIP:3375 ps
 else
-  docker-machine rm luci-swarm-node-01 luci-swarm-master
   echo "Fatal: Did not get a SwarmID"
 fi
 
